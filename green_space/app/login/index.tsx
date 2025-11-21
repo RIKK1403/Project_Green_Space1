@@ -54,7 +54,9 @@ export default function LoginScreen() {
     <ScrollView style={{ flex: 1, backgroundColor: "#F3F3F3" }}>
       {/* Header Image */}
       <Image
-        source={{ uri: "https://i.imgur.com/1ZQZ1Zm.jpeg" }}
+        source={{
+          uri: "https://i.pinimg.com/1200x/2c/be/b1/2cbeb106cee6a2a2776ff0ba5e3cee5f.jpg",
+        }}
         style={styles.headerImage}
       />
 
@@ -69,7 +71,7 @@ export default function LoginScreen() {
           <TouchableOpacity style={styles.socialBtn}>
             <Image
               source={{
-                uri: "https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png",
+                uri: "https://i.pinimg.com/1200x/60/41/99/604199df880fb029291ddd7c382e828b.jpg",
               }}
               style={styles.googleIcon}
             />
