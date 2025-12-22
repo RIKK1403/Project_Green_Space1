@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,41 +6,41 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  Linking,
+  Image,
+  RefreshControl,
 } from "react-native";
 
 const { width } = Dimensions.get("window");
 
 export default function HomeScreen() {
-  const newsData = [
-    {
-      image: "🏛️",
-      title:
-        "Sebuah Renjana Lingkungan Nasional, Kementerian Targetkan Jalur Gerakan Nasional",
-      description:
-        "Kementerian Lingkungan Hidup dan Kehutanan (KLHK) menargetkan program gerakan nasional penghijauan...",
-    },
-    {
-      image: "🌳",
-      title:
-        "Mengenal Hak Lingkungan Hidup Setelah yang Diperjurit Tiap 5 Juni",
-      description:
-        "Setiap tanggal 5 Juni diperingati sebagai Hari Lingkungan Hidup Sedunia yang telah dimulai pada tahun 1974...",
-    },
-    {
-      image: "👥",
-      title:
-        "4 Cara Elosi Ukuran Kembang Plastik Selama yang Mengikut di Perayaan, Sudah Diterapkan?",
-      description:
-        "Anda paling sering dilanda krisis untuk solusi sekali pakai pada masyarakat dalam penggantian sampah plastik...",
-    },
-    {
-      image: "🎬",
-      title:
-        "Hari Bumi ke-55! Yuk ketahui Efek, Planet Kita!, Aksi Nyata Berkesinambungan",
-      description:
-        "Momentum Hari Bumi yang diperingati tiap tanggal 22 April tahun 2025 menguatkan kampanye global...",
-    },
-  ];
+  const [newsData, setNewsData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchNews = async () => {
+    try {
+      const res = await fetch(
+        "https://api.rss2json.com/v1/api.json?rss_url=https://www.mongabay.co.id/feed/"
+      );
+      const data = await res.json();
+      setNewsData(data.items || []);
+    } catch (e) {
+      console.log("Gagal ambil berita:", e);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNews();
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchNews();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -84,18 +84,54 @@ export default function HomeScreen() {
       </View>
 
       {/* Content */}
-      <ScrollView style={styles.content}>
-        {newsData.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.newsCard}>
-            <View style={styles.newsImageContainer}>
-              <Text style={styles.newsEmoji}>{item.image}</Text>
-            </View>
-            <View style={styles.newsTextContainer}>
-              <Text style={styles.newsTitle}>{item.title}</Text>
-              <Text style={styles.newsDescription}>{item.description}</Text>
-            </View>
-          </TouchableOpacity>
-        ))}
+      <ScrollView
+        style={styles.content}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#25A843"]}
+            tintColor="#25A843"
+          />
+        }
+      >
+        {loading ? (
+          <Text style={styles.loadingText}>
+            Memuat berita lingkungan Indonesia...
+          </Text>
+        ) : (
+          newsData.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.newsCard}
+              onPress={() => Linking.openURL(item.link)}
+            >
+              {/* 🔥 GAMBAR ASLI BERITA (FIX) */}
+              {(item.thumbnail || item.enclosure?.link) ? (
+                <Image
+                  source={{
+                    uri: item.thumbnail || item.enclosure?.link,
+                  }}
+                  style={styles.newsThumbnail}
+                />
+              ) : (
+                <View style={styles.newsImageContainer}>
+                  <Text style={styles.newsEmoji}>🌱</Text>
+                </View>
+              )}
+
+              <View style={styles.newsTextContainer}>
+                <Text style={styles.newsTitle}>{item.title}</Text>
+                <Text style={styles.newsDescription}>
+                  {item.description
+                    .replace(/<[^>]+>/g, "")
+                    .slice(0, 120)}
+                  ...
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
 
         {/* Spacer agar tidak ketutup tab bar */}
         <View style={{ height: 120 }} />
@@ -104,6 +140,7 @@ export default function HomeScreen() {
   );
 }
 
+/* ================= STYLES ================= */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -167,6 +204,11 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 15,
   },
+  loadingText: {
+    textAlign: "center",
+    marginTop: 20,
+    color: "#666",
+  },
   newsCard: {
     backgroundColor: "#FFFFFF",
     marginHorizontal: 15,
@@ -179,14 +221,21 @@ const styles = StyleSheet.create({
   newsImageContainer: {
     width: 80,
     height: 80,
-    backgroundColor: "#F0F0F0",
+    backgroundColor: "#EAF7EF",
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
   },
+  newsThumbnail: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 12,
+    backgroundColor: "#EAF7EF",
+  },
   newsEmoji: {
-    fontSize: 35,
+    fontSize: 34,
   },
   newsTextContainer: {
     flex: 1,
