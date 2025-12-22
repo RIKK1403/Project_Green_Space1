@@ -66,12 +66,16 @@ export default function HomeScreen() {
           <Text style={styles.iconLabel}>E-Journal</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.iconMenuItem}>
-          <View style={styles.iconBox}>
-            <Text style={styles.iconText}>📚</Text>
-          </View>
-          <Text style={styles.iconLabel}>Guidebook</Text>
-        </TouchableOpacity>
+<TouchableOpacity
+  style={styles.iconMenuItem}
+  onPress={() => router.push("/guidebook")}
+>
+  <View style={styles.iconBox}>
+    <Text style={styles.iconText}>📚</Text>
+  </View>
+  <Text style={styles.iconLabel}>Guidebook</Text>
+</TouchableOpacity>
+
 
         <TouchableOpacity style={styles.iconMenuItem}>
           <View style={styles.iconBox}>
