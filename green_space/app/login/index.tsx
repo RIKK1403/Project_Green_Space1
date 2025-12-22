@@ -10,55 +10,51 @@ import {
   Alert
 } from "react-native";
 import Checkbox from "expo-checkbox";
+import { router } from "expo-router";
 
 export default function LoginScreen() {
   const [keepSignedIn, setKeepSignedIn] = useState(false);
-
-  // state untuk input user
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // Fungsi login
-  const handleLogin = async () => {
-    if (!username || !password) {
-      Alert.alert("Error", "Username dan password wajib diisi");
-      return;
-    }
+  // Fungsi login langsung tanpa validasi
+  const handleLogin = () => {
+    // Langsung navigasi ke home tanpa validasi
+    router.replace("/(tabs)");
+  };
 
-    try {
-      const response = await fetch("http://192.168.101.98:3000/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+  // Fungsi login dengan Google (guest)
+  const handleGoogleLogin = () => {
+    Alert.alert(
+      "Login dengan Google",
+      "Anda akan masuk sebagai pengguna tamu.",
+      [
+        {
+          text: "Batal",
+          style: "cancel"
         },
-        body: JSON.stringify({
-          username,
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        Alert.alert("Sukses", "Login Berhasil!");
-        // navigation.navigate("Home"); jika perlu
-      } else {
-        Alert.alert("Gagal", data.message);
-      }
-    } catch (error) {
-      Alert.alert("Error", "Tidak dapat terhubung ke server");
-    }
+        {
+          text: "Lanjutkan",
+          onPress: () => {
+            router.replace("/(tabs)");
+          }
+        }
+      ]
+    );
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "#F3F3F3" }}>
-      {/* Header Image */}
-      <Image
-        source={{
-          uri: "https://i.pinimg.com/1200x/2c/be/b1/2cbeb106cee6a2a2776ff0ba5e3cee5f.jpg",
-        }}
-        style={styles.headerImage}
-      />
+    <ScrollView style={styles.container}>
+      {/* Header dengan Logo dan Image */}
+      <View style={styles.header}>
+        <Text style={styles.logoText}>GREEN SPACE</Text>
+        <Image
+          source={{
+            uri: "https://i.pinimg.com/1200x/2c/be/b1/2cbeb106cee6a2a2776ff0ba5e3cee5f.jpg",
+          }}
+          style={styles.headerImage}
+        />
+      </View>
 
       {/* Card Login */}
       <View style={styles.card}>
@@ -66,28 +62,24 @@ export default function LoginScreen() {
         <View style={styles.line} />
         <Text style={styles.subText}>or Log-in with</Text>
 
-        {/* Social Login */}
-        <View style={styles.socialRow}>
-          <TouchableOpacity style={styles.socialBtn}>
-            <Image
-              source={{
-                uri: "https://i.pinimg.com/1200x/60/41/99/604199df880fb029291ddd7c382e828b.jpg",
-              }}
-              style={styles.googleIcon}
-            />
-            <Text style={styles.socialBtnText}>Google</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.socialBtn}>
-            <Text style={styles.phoneIcon}>📞</Text>
-            <Text style={styles.socialBtnText}>Telephone</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Tombol Google */}
+        <TouchableOpacity 
+          style={styles.googleButton}
+          onPress={handleGoogleLogin}
+        >
+          <Image
+            source={{
+              uri: "https://i.pinimg.com/1200x/60/41/99/604199df880fb029291ddd7c382e828b.jpg",
+            }}
+            style={styles.googleIcon}
+          />
+          <Text style={styles.googleButtonText}>Google</Text>
+        </TouchableOpacity>
 
         {/* Section Title */}
         <Text style={styles.sectionTitle}>Sign-in with account</Text>
 
-        {/* Inputs */}
+        {/* Input Fields */}
         <TextInput
           placeholder="Username or Email Address"
           placeholderTextColor="#9F9F9F"
@@ -105,7 +97,7 @@ export default function LoginScreen() {
           onChangeText={setPassword}
         />
 
-        {/* Checkbox */}
+        {/* Checkbox Remember Me */}
         <View style={styles.checkboxRow}>
           <Checkbox
             value={keepSignedIn}
@@ -115,9 +107,20 @@ export default function LoginScreen() {
           <Text style={styles.checkboxLabel}>Keep me signed in</Text>
         </View>
 
-        {/* Tombol Login */}
-        <TouchableOpacity style={styles.signInBtn} onPress={handleLogin}>
-          <Text style={styles.signInText}>Sign-In</Text>
+        {/* Tombol Sign-In */}
+        <TouchableOpacity 
+          style={styles.signInButton} 
+          onPress={handleLogin}
+        >
+          <Text style={styles.signInButtonText}>Sign-In</Text>
+        </TouchableOpacity>
+
+        {/* Tombol Skip Login (hidden but functional) */}
+        <TouchableOpacity 
+          style={styles.skipButton}
+          onPress={handleLogin}
+        >
+          <Text style={styles.skipButtonText}>Skip Login (Testing)</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -125,15 +128,29 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    width: "100%",
-    height: 260,
-    borderBottomLeftRadius: 60,
-    borderBottomRightRadius: 60,
+  container: {
+    flex: 1,
+    backgroundColor: "#F3F3F3",
   },
-
+  header: {
+    alignItems: "center",
+    paddingTop: 50,
+    paddingBottom: 20,
+  },
+  logoText: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#25C145",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  headerImage: {
+    width: "90%",
+    height: 200,
+    borderRadius: 30,
+    marginBottom: -30,
+  },
   card: {
-    marginTop: -50,
     marginHorizontal: 20,
     backgroundColor: "#FFFFFF",
     padding: 30,
@@ -142,103 +159,98 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 10,
     elevation: 8,
+    marginTop: 10,
   },
-
   title: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: "700",
     textAlign: "center",
     marginBottom: 10,
+    color: "#333",
   },
-
   line: {
     height: 1,
     backgroundColor: "#D8D8D8",
     width: "70%",
     alignSelf: "center",
-    marginBottom: 10,
+    marginBottom: 15,
   },
-
   subText: {
     fontSize: 14,
     color: "#888",
     textAlign: "center",
     marginBottom: 25,
   },
-
-  socialRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 25,
-  },
-
-  socialBtn: {
-    flex: 1,
+  googleButton: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1,
     borderColor: "#DDD",
-    paddingVertical: 12,
+    paddingVertical: 15,
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
-    justifyContent: "center",
-    marginHorizontal: 5,
+    marginBottom: 30,
   },
-
   googleIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 8,
+    width: 24,
+    height: 24,
+    marginRight: 10,
   },
-
-  phoneIcon: {
-    fontSize: 18,
-    marginRight: 6,
-  },
-
-  socialBtnText: {
-    fontSize: 14,
-    fontWeight: "600",
-  },
-
-  sectionTitle: {
-    fontSize: 15,
+  googleButtonText: {
+    fontSize: 16,
     fontWeight: "600",
     color: "#333",
-    marginBottom: 15,
   },
-
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 20,
+  },
   input: {
-    backgroundColor: "#F1F1F1",
+    backgroundColor: "#F8F8F8",
     borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    fontSize: 14,
-    marginBottom: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    fontSize: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#EEE",
   },
-
   checkboxRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 25,
+    marginBottom: 30,
   },
-
   checkboxLabel: {
     fontSize: 14,
-    marginLeft: 8,
+    marginLeft: 10,
     color: "#555",
   },
-
-  signInBtn: {
+  signInButton: {
     backgroundColor: "#25C145",
-    paddingVertical: 14,
+    paddingVertical: 18,
     borderRadius: 12,
+    marginBottom: 15,
   },
-
-  signInText: {
+  signInButtonText: {
     textAlign: "center",
-    fontSize: 16,
+    fontSize: 18,
     color: "#FFFFFF",
     fontWeight: "700",
+  },
+  skipButton: {
+    backgroundColor: "transparent",
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#25C145",
+  },
+  skipButtonText: {
+    textAlign: "center",
+    fontSize: 14,
+    color: "#25C145",
+    fontWeight: "600",
   },
 });
