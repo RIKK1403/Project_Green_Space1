@@ -10,6 +10,7 @@ import {
   Image,
   RefreshControl,
 } from "react-native";
+import { router } from "expo-router"; // ✅ TAMBAHAN
 
 const { width } = Dimensions.get("window");
 
@@ -54,7 +55,11 @@ export default function HomeScreen() {
 
       {/* Icon Menu */}
       <View style={styles.iconMenuContainer}>
-        <TouchableOpacity style={styles.iconMenuItem}>
+        {/* ✅ E-JOURNAL (FIXED) */}
+        <TouchableOpacity
+          style={styles.iconMenuItem}
+          onPress={() => router.push("/ejournal")}
+        >
           <View style={styles.iconBox}>
             <Text style={styles.iconText}>📖</Text>
           </View>
@@ -106,12 +111,9 @@ export default function HomeScreen() {
               style={styles.newsCard}
               onPress={() => Linking.openURL(item.link)}
             >
-              {/* 🔥 GAMBAR ASLI BERITA (FIX) */}
               {(item.thumbnail || item.enclosure?.link) ? (
                 <Image
-                  source={{
-                    uri: item.thumbnail || item.enclosure?.link,
-                  }}
+                  source={{ uri: item.thumbnail || item.enclosure?.link }}
                   style={styles.newsThumbnail}
                 />
               ) : (
@@ -123,17 +125,13 @@ export default function HomeScreen() {
               <View style={styles.newsTextContainer}>
                 <Text style={styles.newsTitle}>{item.title}</Text>
                 <Text style={styles.newsDescription}>
-                  {item.description
-                    .replace(/<[^>]+>/g, "")
-                    .slice(0, 120)}
-                  ...
+                  {item.description.replace(/<[^>]+>/g, "").slice(0, 120)}...
                 </Text>
               </View>
             </TouchableOpacity>
           ))
         )}
 
-        {/* Spacer agar tidak ketutup tab bar */}
         <View style={{ height: 120 }} />
       </ScrollView>
     </View>
