@@ -77,14 +77,21 @@ export default function HomeScreen() {
 </TouchableOpacity>
 
 
-        <TouchableOpacity style={styles.iconMenuItem}>
-          <View style={styles.iconBox}>
-            <Text style={styles.iconText}>✅</Text>
-          </View>
-          <Text style={styles.iconLabel}>Status</Text>
-        </TouchableOpacity>
+       <TouchableOpacity
+  style={styles.iconMenuItem}
+  onPress={() => router.push("/status")}
+>
+  <View style={styles.iconBox}>
+    <Text style={styles.iconText}>✅</Text>
+  </View>
+  <Text style={styles.iconLabel}>Status</Text>
+</TouchableOpacity>
 
-        <TouchableOpacity style={styles.iconMenuItem}>
+        <TouchableOpacity
+  style={styles.iconMenuItem}
+  onPress={() => router.push("/reports")}
+>
+
           <View style={styles.iconBox}>
             <Text style={styles.iconText}>⏰</Text>
           </View>
